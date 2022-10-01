@@ -1,6 +1,7 @@
 ﻿USE QLSV
 GO
 
+--QUERY
 --4.1
 SELECT * 
 FROM SinhVien sv 
@@ -38,5 +39,59 @@ SELECT AVG(kq.diem) as N'Điểm trung bình'
 FROM SinhVien sv join KetQua kq on kq.maSinhVien = sv.ma
 WHERE kq.lanThi >= ALL(SELECT kq2.lanThi FROM KetQua kq2 WHERE kq2.maSinhVien = sv.ma and kq2.maMonHoc = kq.maMonHoc) and sv.ma = '0212003'
 
---5.1
---CREATE FUNCTION 
+--CREATE FUNCTION
+--5.1 
+CREATE FUNCTION dbo.F_KTSINHVIEN (@MSSV VARCHAR(7), @MAKHOA VARCHAR(10))
+RETURNS VARCHAR(10)
+AS
+BEGIN
+    IF (EXISTS(SELECT * 
+        FROM SinhVien sv join Lop l on l.ma = sv.maLop 
+        WHERE sv.ma = @MSSV and l.maKhoa = @MAKHOA))
+    BEGIN
+        RETURN N'Đúng'
+    END
+RETURN N'Sai'
+END
+
+--5.2
+CREATE FUNCTION dbo.F_DTSINHVIEN(@MSSV VARCHAR(7), @MAMH VARCHAR(10))
+RETURNS FLOAT
+AS
+BEGIN
+RETURN (SELECT kq.diem 
+        FROM SinhVien sv, KetQua kq 
+        WHERE kq.maSinhVien = sv.ma and sv.ma = @MSSV and kq.maMonHoc = @MAMH
+            and kq.lanThi >= ALL(
+                SELECT kq2.lanThi 
+                FROM KetQua kq2 
+                WHERE kq2.maSinhVien = sv.ma and kq2.maMonHoc = kq.maMonHoc))
+END
+
+--5.3
+CREATE FUNCTION dbo.F_DTBSINHVIEN(@MSSV VARCHAR(7))
+RETURNS FLOAT
+AS
+BEGIN
+    RETURN(SELECT AVG(dbo.F_DTSINHVIEN(@MSSV, Temp.maMonHoc)) 
+            FROM (
+                SELECT DISTINCT kq.maMonHoc
+                FROM KetQua kq) as Temp)
+END
+
+--5.4
+CREATE FUNCTION dbo.F_LTMONHOC(@MSSV VARCHAR(7), @MAMH VARCHAR(10))
+RETURNS TABLE
+AS
+    RETURN(SELECT kq.diem, kq.lanThi 
+            FROM KetQua kq 
+            WHERE kq.maMonHoc = @MAMH and kq.maSinhVien = @MSSV)
+
+--5.5
+CREATE FUNCTION dbo.F_DSMONHOC(@MSSV VARCHAR(7))
+RETURNS TABLE
+AS
+    RETURN(SELECT mh.ma, mh.tenMonHoc 
+            FROM SinhVien sv, Lop l, MonHoc mh 
+            WHERE l.ma = sv.maLop and l.maKhoa = mh.maKhoa and sv.ma = @MSSV)
+
