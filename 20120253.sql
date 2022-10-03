@@ -159,7 +159,7 @@ AS
 GO
 
 --6.5
-CREATE PROCEDURE SP_DLTSINHVIEN
+ALTER PROCEDURE SP_DLTSINHVIEN
     @MSSV VARCHAR(10),
     @MAMH VARCHAR(10)
 AS
@@ -168,11 +168,20 @@ AS
     FROM KetQua kq
     WHERE kq.maSinhVien = @MSSV and kq.maMonHoc = @MAMH and kq.lanThi = @COUNT)
     BEGIN
-        DECLARE @LANTHI INT = (SELECT kq.lanThi FROM KetQua kq
-                                WHERE kq.maSinhVien = @MSSV and kq.maMonHoc = @MAMH and kq.lanThi = @COUNT)
-        DECLARE @DIEMTHI FLOAT = (SELECT kq.diem FROM KetQua kq
-                                WHERE kq.maSinhVien = @MSSV and kq.maMonHoc = @MAMH and kq.lanThi = @COUNT)
+        DECLARE @LANTHI CHAR = CONVERT(CHAR, (SELECT kq.lanThi FROM KetQua kq
+                                WHERE kq.maSinhVien = @MSSV and kq.maMonHoc = @MAMH and kq.lanThi = @COUNT))
+        DECLARE @DIEMTHI VARCHAR(MAX) = CONVERT(VARCHAR(MAX),(SELECT kq.diem FROM KetQua kq
+                                WHERE kq.maSinhVien = @MSSV and kq.maMonHoc = @MAMH and kq.lanThi = @COUNT))
         PRINT N'Lần ' + @LANTHI + ': ' + @DIEMTHI
         SET @COUNT = @COUNT + 1
     END
+GO
+
+USE QLSV
+GO
+--6.6
+CREATE PROCEDURE SP_MHSINHVIEN
+    @MSSV VARCHAR(10)
+AS
+    SELECT * FROM 
 GO
