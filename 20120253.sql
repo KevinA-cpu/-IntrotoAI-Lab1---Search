@@ -95,3 +95,84 @@ AS
             FROM SinhVien sv, Lop l, MonHoc mh 
             WHERE l.ma = sv.maLop and l.maKhoa = mh.maKhoa and sv.ma = @MSSV)
 
+--Stored Procedure
+--6.1
+CREATE PROCEDURE SP_DSSINHVIEN
+    @MALOP VARCHAR(10)
+AS
+    SELECT * 
+    FROM SinhVien sv 
+    WHERE sv.maLop = @MALOP
+GO
+
+--6.2
+CREATE PROCEDURE SP_SSSINHVIEN
+    @SV1 VARCHAR(10),
+    @SV2 VARCHAR(10),
+    @MAMH VARCHAR(10)
+AS
+    DECLARE @DIEM1 FLOAT = (SELECT kq.diem 
+                            FROM KetQua kq
+                            WHERE kq.lanThi = 1 and kq.maMonHoc = @MAMH and kq.maSinhVien = @SV1)
+    DECLARE @DIEM2 FLOAT = (SELECT kq.diem
+                            FROM KetQua kq
+                            WHERE kq.lanThi = 1 and kq.maMonHoc = @MAMH and kq.maSinhVien = @SV2)
+    IF (@DIEM1 > @DIEM2)
+    BEGIN
+        PRINT N'Sinh viên ' + @SV1 + N' điểm môn ' + @MAMH + N' cao hơn sinh viên ' + @SV2 + '.'
+    END
+    ELSE IF (@DIEM2 > @DIEM1)
+    BEGIN
+        PRINT N'Sinh viên ' + @SV2 + N' điểm môn ' + @MAMH + N' cao hơn sinh viên ' + @SV1 + '.'
+    END
+    ELSE
+    BEGIN
+        PRINT N'Điểm hai sinh viên bằng nhau.'
+    END
+GO
+
+--6.3
+CREATE PROCEDURE SP_KTSVDAU
+    @MASV VARCHAR(10),
+    @MAMH VARCHAR(10)
+AS
+    DECLARE @DIEM FLOAT = (SELECT kq.diem
+                            FROM KetQua kq
+                            WHERE kq.maSinhVien = @MASV and kq.maMonHoc = @MAMH and kq.lanThi = 1)
+    IF(@DIEM >= 5)
+    BEGIN
+        PRINT N'Đậu.'
+    END
+    ELSE
+    BEGIN
+        PRINT N'Không đậu.'
+    END
+GO
+
+--6.4
+CREATE PROCEDURE SP_KDSSINHVIEN
+    @MAKHOA VARCHAR(10)
+AS
+    SELECT sv.ma, sv.hoTen, sv.namSinh 
+    FROM SinhVien sv, Lop l, Khoa k
+    WHERE sv.maLop = l.ma and k.ma = l.maKhoa and k.ma = @MAKHOA
+GO
+
+--6.5
+CREATE PROCEDURE SP_DLTSINHVIEN
+    @MSSV VARCHAR(10),
+    @MAMH VARCHAR(10)
+AS
+    DECLARE @COUNT INT = 1
+    WHILE EXISTS (SELECT COUNT(*) 
+    FROM KetQua kq
+    WHERE kq.maSinhVien = @MSSV and kq.maMonHoc = @MAMH and kq.lanThi = @COUNT)
+    BEGIN
+        DECLARE @LANTHI INT = (SELECT kq.lanThi FROM KetQua kq
+                                WHERE kq.maSinhVien = @MSSV and kq.maMonHoc = @MAMH and kq.lanThi = @COUNT)
+        DECLARE @DIEMTHI FLOAT = (SELECT kq.diem FROM KetQua kq
+                                WHERE kq.maSinhVien = @MSSV and kq.maMonHoc = @MAMH and kq.lanThi = @COUNT)
+        PRINT N'Lần ' + @LANTHI + ': ' + @DIEMTHI
+        SET @COUNT = @COUNT + 1
+    END
+GO
