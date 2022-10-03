@@ -183,5 +183,9 @@ GO
 CREATE PROCEDURE SP_MHSINHVIEN
     @MSSV VARCHAR(10)
 AS
-    SELECT * FROM 
+    SELECT * 
+    FROM MonHoc mh 
+    WHERE mh.maKhoa = (SELECT l.maKhoa 
+                        FROM SinhVien sv, Lop l
+                        WHERE sv.ma = @MSSV and l.ma = sv.maLop)
 GO
