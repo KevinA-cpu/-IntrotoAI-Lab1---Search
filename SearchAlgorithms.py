@@ -11,9 +11,15 @@ def solutionColoring(path, g: Graph, sc: pygame.Surface):
     g.draw(sc)
     #remove the start node for accurate coloring
     path.remove(g.start.value)
+    previous_node = g.start.value
     for value in path:
         g.grid_cells[value].set_color(grey)
+        g.grid_cells[value].draw
+        pygame.draw.line(sc,green,
+                         (g.grid_cells[previous_node].x, g.grid_cells[previous_node].y), 
+                         (g.grid_cells[value].x, g.grid_cells[value].y))
         g.draw(sc)
+        previous_node = value
     g.goal.set_color(purple)
     g.draw(sc)
 
