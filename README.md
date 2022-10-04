@@ -8,9 +8,9 @@ The algorithms include:
 - A Star
 
 Run using main.py with the following parameters
---algo UCS/DFS/BFS/Dijkstra/AStar: choose the algorithm you want to run
---start 71 : set the starting position
---goal 318 :set the goal position
+- --algo UCS/DFS/BFS/Dijkstra/AStar: choose the algorithm you want to run
+- --start 71 : set the starting position
+- --goal 318 :set the goal position
 
 Constant.py contains the color for the components of the graphs
 Space.py is the code for the graphs and nodes
