@@ -1,6 +1,5 @@
 ﻿USE QLSV
 GO
-
 --QUERY
 --4.1
 SELECT * 
@@ -189,3 +188,92 @@ AS
                         FROM SinhVien sv, Lop l
                         WHERE sv.ma = @MSSV and l.ma = sv.maLop)
 GO
+
+--6.7
+CREATE PROCEDURE SP_SVDAUMHLANDAU
+    @MAMH VARCHAR(10)
+AS
+    SELECT *
+    FROM SinhVien sv
+    WHERE sv.ma in (SELECT kq.maSinhVien 
+                    FROM KetQua kq
+                    WHERE kq.maMonHoc = @MAMH and kq.diem >= 5 and kq.lanThi = 1)
+
+GO
+
+--6.8
+--6.8.1
+CREATE PROCEDURE SP_MONHOC681
+    @MSSV VARCHAR(10)
+AS
+    SELECT * 
+    FROM KetQua kq 
+    WHERE kq.maSinhVien = @MSSV and kq.lanThi >= ALL(
+        SELECT kq2.lanThi 
+        FROM KetQua kq2 
+        WHERE kq2.maSinhVien = @MSSV and kq.maMonHoc = kq2.maMonHoc
+    )
+GO
+
+--6.8.2
+ALTER PROCEDURE SP_MONHOC682
+    @MSSV VARCHAR(10)
+AS
+    SELECT kq.maSinhVien, kq.maMonHoc, kq.diem 
+    FROM MonHoc mh 
+    LEFT JOIN KetQua kq on kq.maMonHoc = mh.ma
+    WHERE (kq.maSinhVien = @MSSV and kq.lanThi >= ALL(
+        SELECT kq2.lanThi 
+        FROM KetQua kq2 
+        WHERE kq2.maSinhVien = @MSSV and kq.maMonHoc = kq2.maMonHoc
+    )) or kq.lanThi = 0
+GO
+
+EXEC SP_MONHOC682 '0212001'
+
+SELECT *
+    FROM MonHoc mh 
+    LEFT JOIN KetQua kq on mh.ma = kq.maMonHoc
+SELECT DISTINCT sv.ma, mh.ma, kq.lanThi, kq.diem 
+FROM SinhVien sv 
+RIGHT JOIN Lop l on l.ma = sv.maLop
+RIGHT JOIN MonHoc mh on mh.maKhoa = l.maKhoa
+LEFT JOIN KetQua kq on kq.maSinhVien = sv.ma
+
+SELECT sv.ma, l.maKhoa
+FROM SinhVien sv join Lop l on l.ma = sv.maLop
+
+
+SELECT * 
+FROM KetQua kq 
+RIGHT JOIN MonHoc mh on kq.maMonHoc = mh.ma
+LEFT JOIN SinhVien sv on kq.maSinhVien = sv.ma
+
+SELECT sv.ma, mh.ma, (SELECT kq.lanThi 
+                      FROM KetQua kq 
+                      WHERE kq.maSinhVien = sv.ma and kq.lanThi >= ALL(
+                        SELECT kq2.lanThi 
+                        FROM KetQua kq2 
+                        WHERE kq2.maSinhVien = sv.ma and kq2.maMonHoc = kq.maMonHoc))
+
+
+SELECT kq.maSinhVien, mh.ma, kq.lanThi
+FROM SinhVien sv 
+    join lop l on l.ma = sv.maLop 
+    join MonHoc mh on mh.maKhoa = l.maKhoa
+    LEFT JOIN KetQua kq on kq.maMonHoc = mh.ma
+WHERE kq.lanThi >= ALL(SELECT kq2.lanThi 
+                        FROM KetQua kq2 
+                        WHERE kq2.maSinhVien = kq.maSinhVien and
+                        kq2.maMonHoc = kq.maMonHoc) 
+
+
+SELECT * 
+FROM KetQua kq 
+RIGHT JOIN MonHoc mh on mh.ma = kq.maMonHoc
+LEFT JOIN SinhVien sv on kq.maSinhVien = sv.ma
+WHERE kq.lanThi >= ALL(SELECT kq2.lanThi 
+                        FROM KetQua kq2 
+                        WHERE kq2.maSinhVien = kq.maSinhVien and
+                        kq2.maMonHoc = kq.maMonHoc) 
+                        or kq.lanThi IS NULL
