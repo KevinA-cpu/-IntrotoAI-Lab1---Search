@@ -13,6 +13,6 @@ Run using main.py with the following parameters
 - --goal 318 :set the goal position
 
 Constant.py contains the color for the components of the graphs, 
-Space.py is the code for the graphs and nodes
+Space.py contains the code for the graphs and nodes
 
 This source code is only for referencing purpose, the publisher did not write everything, only the implementation of the searching algorithms.
