@@ -1,0 +1,11 @@
+4
+-C OR -R
+-P OR -R
+-A OR -P OR -R
+-E
+3
+-C
+-P
+-A OR -P
+0
+NO

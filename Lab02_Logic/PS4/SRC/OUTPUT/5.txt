@@ -1,0 +1,26 @@
+12
+-Q OR -S OR -T
+-S OR -T
+-N OR S OR -T
+N OR -Q OR T
+N OR -S
+T
+-S
+-Q OR -T
+Q OR -S
+N OR Q
+-Q OR S
+N OR S
+11
+N OR -Q OR -T
+N OR Q OR -T
+Q OR S
+Q OR -T
+-Q OR -S
+-Q OR T
+N OR T
+-N OR -S
+N OR -Q
+N
+{}
+YES
